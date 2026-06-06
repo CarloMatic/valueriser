@@ -48,7 +48,7 @@
 <body>
   <div class="app-container">
     <header>
-      <div class="brand-title" id="app-title">Valueriser</div>
+      <div class="brand-title" id="app-title">Valueriser <span class="beta-badge">Beta</span></div>
       <div class="nav-toggle" role="tablist">
         <button class="nav-btn active" id="tab-calc" role="tab" aria-selected="true" aria-controls="panel-calc">Rechner</button>
         <button class="nav-btn" id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Profil</button>
@@ -198,8 +198,15 @@
                 <span class="card-value-raw" id="raw-pay-revolut">0 Punkte</span>
               </div>
             </div>
-          </div>
         </div>
+        
+        <!-- Footer in main content (scrolls with page) -->
+        <footer class="calc-footer">
+          <p class="disclaimer">Nutzung auf eigene Gefahr. Keine Gewähr und Verantwortung für Rechenfehler.</p>
+          <div class="footer-links">
+            <a href="#impressum" id="link-impressum" class="footer-link">Impressum</a>
+          </div>
+        </footer>
       </section>
 
       <!-- Profile / Settings View Panel (Hidden by default) -->
@@ -318,6 +325,9 @@
         </div>
 
         <button type="button" id="btn-reset-settings" class="reset-btn">Standardwerte wiederherstellen</button>
+        <div class="settings-footer">
+          <a href="#impressum" id="link-impressum-settings">Impressum</a>
+        </div>
       </section>
     </main>
 
@@ -329,6 +339,45 @@
         <span class="total-combo-text" id="total-combo-desc">Keine Auswahl</span>
       </div>
       <button class="action-btn" id="btn-clear-selection">Auswahl leeren</button>
+    </div>
+  </div>
+
+  <!-- Impressum Modal Overlay -->
+  <div id="impressum-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modal-title">Impressum</h2>
+        <button type="button" class="modal-close" id="btn-close-modal" aria-label="Schließen">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.8rem;">Angaben gemäß § 5 TMG</p>
+        
+        <div class="legal-card">
+          <p class="legal-bold">Angelpower UG (haftungsbeschränkt)</p>
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 2px;">Belvedereallee 5, 52070 Aachen, Germany</p>
+          <div class="legal-divider"></div>
+          <h3 class="legal-sub">Registereintrag</h3>
+          <p class="text-muted" style="font-size: 0.8rem; line-height: 1.4; margin-top: 2px;">Registergericht: Amtsgericht Aachen<br>Registernummer: HRB 16897</p>
+        </div>
+
+        <div class="legal-card">
+          <h3 class="legal-sub">Kontakt</h3>
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 2px;">E-Mail: <span class="legal-highlight">hi [at] valueriser [dot] de</span></p>
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 2px;">Telefon: +49 241 91880 1</p>
+        </div>
+
+        <div class="legal-card">
+          <h3 class="legal-sub">Vertreten durch</h3>
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 2px;">Carlo Matic (Geschäftsführer)</p>
+        </div>
+
+        <div class="legal-card">
+          <h3 class="legal-sub">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+          <p class="legal-bold" style="font-size: 0.9rem;">Carlo Matic</p>
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 2px;">Belvedereallee 5, 52070 Aachen, Germany</p>
+        </div>
+      </div>
     </div>
   </div>
 

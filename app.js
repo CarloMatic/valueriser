@@ -570,6 +570,39 @@ btnResetSettings.addEventListener('click', () => {
   }
 });
 
+// --- Impressum Modal Toggle Logic ---
+const linkImpressum = document.getElementById('link-impressum');
+const linkImpressumSettings = document.getElementById('link-impressum-settings');
+const modalImpressum = document.getElementById('impressum-modal');
+const btnCloseModal = document.getElementById('btn-close-modal');
+const modalOverlay = modalImpressum ? modalImpressum.querySelector('.modal-overlay') : null;
+
+function openModal() {
+  if (modalImpressum) {
+    modalImpressum.classList.add('active');
+    modalImpressum.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden'; // Prevents scrolling behind the modal
+  }
+}
+
+function closeModal() {
+  if (modalImpressum) {
+    modalImpressum.classList.remove('active');
+    modalImpressum.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = ''; // Restores scrolling
+  }
+}
+
+if (linkImpressum) linkImpressum.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+if (linkImpressumSettings) linkImpressumSettings.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+
+// Escape key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
 // Init execution
 loadSettingsToForm();
 loadCalculatorState();
