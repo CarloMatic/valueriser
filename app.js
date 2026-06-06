@@ -293,24 +293,24 @@ function saveSettingsFromForm() {
         name: 'Payback',
         pointsRate: parseFloat(setPbPoints.value) || 1,
         perEuro: parseInt(setPbPerEuro.value) || 2,
-        valuation: parseFloat(setPbVal.value) || 0.01
+        valuation: parseFloat(setPbVal.value) || 0.01875
       },
       milesMore: {
         name: 'Miles & More',
         milesRate: parseFloat(setMmMiles.value) || 1,
         perEuro: parseInt(setMmPerEuro.value) || 2,
-        valuation: parseFloat(setMmVal.value) || 0.01
+        valuation: parseFloat(setMmVal.value) || 0.02
       },
       amex: {
         name: 'Amex',
-        pointsRate: parseFloat(setAmexPoints.value) || 1,
+        pointsRate: parseFloat(setAmexPoints.value) || 1.5,
         perEuro: parseInt(setAmexPerEuro.value) || 1,
-        valuation: parseFloat(setAmexVal.value) || 0.04
+        valuation: parseFloat(setAmexVal.value) || 0.02
       },
       revolut: {
         name: 'Revolut',
         pointsRate: parseFloat(setRevolutPoints.value) || 1,
-        perEuro: parseInt(setRevolutPerEuro.value) || 1,
+        perEuro: parseInt(setRevolutPerEuro.value) || 2,
         valuation: parseFloat(setRevolutVal.value) || 0.02
       }
     }

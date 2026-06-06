@@ -15,25 +15,25 @@ export class RewardsStore {
           name: 'Payback',
           pointsRate: 1,      // 1 Punkt
           perEuro: 2,         // pro 2 Euro
-          valuation: 0.01,    // 0,01 Euro (1 Cent) pro Punkt
+          valuation: 0.01875, // 0,01875 Euro pro Punkt
         },
         milesMore: {
           name: 'Miles & More',
           milesRate: 1,       // 1 Meile
           perEuro: 2,         // pro 2 Euro
-          valuation: 0.01,    // 0,01 Euro (1 Cent) pro Meile
+          valuation: 0.02,    // 0,02 Euro pro Meile
         },
         amex: {
           name: 'Amex',
-          pointsRate: 1,      // 1 Punkt
+          pointsRate: 1.5,    // 1,5 MR
           perEuro: 1,         // pro 1 Euro
-          valuation: 0.04,    // 0,04 Euro (4 Cent) pro Punkt
+          valuation: 0.02,    // 0,02 Euro pro Punkt
         },
         revolut: {
           name: 'Revolut',
           pointsRate: 1,      // 1 Punkt
-          perEuro: 1,         // pro 1 Euro
-          valuation: 0.02,    // 0,02 Euro (2 Cent) pro Punkt
+          perEuro: 2,         // pro 2 Euro
+          valuation: 0.02,    // 0,02 Euro pro Punkt
         }
       }
     };
