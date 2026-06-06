@@ -15,15 +15,14 @@ const panelSettings = document.getElementById('panel-settings');
 
 // DOM Elements - Calculator Controls
 const spendAmountInput = document.getElementById('spend-amount');
-const cashbackPercentSlider = document.getElementById('cashback-percent');
-const cashbackPercentInput = document.getElementById('cashback-percent-input');
 
-// DOM Elements - Coupon Selectors
-const couponProgramSelector = document.getElementById('coupon-program-selector');
-const couponMultiplierRow = document.getElementById('coupon-multiplier-row');
-const couponMultiplierSlider = document.getElementById('coupon-multiplier');
-const couponMultiplierInput = document.getElementById('coupon-multiplier-input');
-const couponMultiplierTitle = document.getElementById('coupon-multiplier-title');
+// DOM Elements - Unified Program / Benefit Selectors
+const programSelector = document.getElementById('program-selector');
+const bonusSliderRow = document.getElementById('bonus-slider-row');
+const bonusSlider = document.getElementById('bonus-slider');
+const bonusSliderInput = document.getElementById('bonus-slider-input');
+const bonusSliderTitle = document.getElementById('bonus-slider-title');
+const bonusSliderSuffix = document.getElementById('bonus-slider-suffix');
 
 // DOM Elements - Cards & Grids
 const programGrid = document.getElementById('program-grid');
@@ -87,27 +86,32 @@ function formatCurrency(value) {
 function updateUI() {
   const spendAmount = parseFloat(spendAmountInput.value) || 0;
   
-  // Cashback value (slider and input are kept in sync)
-  const extraCashback = parseFloat(cashbackPercentSlider.value) || 0;
-
-  // Coupon program & multiplier logic
-  const activeCouponBtn = couponProgramSelector.querySelector('.coupon-btn.active');
-  const couponProgram = activeCouponBtn ? activeCouponBtn.dataset.program : 'none';
+  // Read active benefit option (Kein, Cashback, Payback, Miles & More)
+  const activeBtn = programSelector.querySelector('.coupon-btn.active');
+  const activeProgram = activeBtn ? activeBtn.dataset.program : 'none';
   
+  let extraCashback = 0;
   let paybackMultiplier = 1;
   let milesMultiplier = 1;
-  const currentMultiplier = parseInt(couponMultiplierSlider.value) || 1;
+  const sliderValue = parseFloat(bonusSlider.value) || 0;
 
-  if (couponProgram === 'payback') {
-    paybackMultiplier = currentMultiplier;
-    couponMultiplierRow.classList.remove('hidden');
-    couponMultiplierTitle.textContent = 'Payback Coupon-Faktor';
-  } else if (couponProgram === 'milesMore') {
-    milesMultiplier = currentMultiplier;
-    couponMultiplierRow.classList.remove('hidden');
-    couponMultiplierTitle.textContent = 'Miles & More Coupon-Faktor';
+  if (activeProgram === 'none') {
+    bonusSliderRow.classList.add('hidden');
   } else {
-    couponMultiplierRow.classList.add('hidden');
+    bonusSliderRow.classList.remove('hidden');
+    if (activeProgram === 'cashback') {
+      extraCashback = sliderValue;
+      bonusSliderTitle.textContent = 'Zusatz-Cashback';
+      bonusSliderSuffix.textContent = '%';
+    } else if (activeProgram === 'payback') {
+      paybackMultiplier = Math.max(1, parseInt(sliderValue) || 1);
+      bonusSliderTitle.textContent = 'Payback Coupon-Faktor';
+      bonusSliderSuffix.textContent = 'x';
+    } else if (activeProgram === 'milesMore') {
+      milesMultiplier = Math.max(1, parseInt(sliderValue) || 1);
+      bonusSliderTitle.textContent = 'Miles & More Coupon-Faktor';
+      bonusSliderSuffix.textContent = 'x';
+    }
   }
 
   // Run calculation through store
@@ -332,12 +336,11 @@ function saveSettingsFromForm() {
 }
 
 function saveCalculatorState() {
-  const activeCouponBtn = couponProgramSelector.querySelector('.coupon-btn.active');
+  const activeBtn = programSelector.querySelector('.coupon-btn.active');
   const state = {
     amount: spendAmountInput.value,
-    cashback: cashbackPercentSlider.value,
-    couponProgram: activeCouponBtn ? activeCouponBtn.dataset.program : 'none',
-    couponMultiplier: couponMultiplierSlider.value,
+    programOption: activeBtn ? activeBtn.dataset.program : 'none',
+    sliderValue: bonusSlider.value,
     programId: selectedProgramId,
     paymentMethodId: selectedPaymentMethodId
   };
@@ -350,18 +353,17 @@ function loadCalculatorState() {
     if (stored) {
       const state = JSON.parse(stored);
       if (state.amount !== undefined) spendAmountInput.value = state.amount;
-      if (state.cashback !== undefined) {
-        cashbackPercentSlider.value = state.cashback;
-        cashbackPercentInput.value = state.cashback;
-      }
-      if (state.couponProgram !== undefined) {
-        couponProgramSelector.querySelectorAll('.coupon-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.program === state.couponProgram);
-        });
-      }
-      if (state.couponMultiplier !== undefined) {
-        couponMultiplierSlider.value = state.couponMultiplier;
-        couponMultiplierInput.value = state.couponMultiplier;
+      
+      const option = state.programOption || 'none';
+      programSelector.querySelectorAll('.coupon-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.program === option);
+      });
+      
+      configureSlider(option);
+      
+      if (state.sliderValue !== undefined) {
+        bonusSlider.value = state.sliderValue;
+        bonusSliderInput.value = state.sliderValue;
       }
       if (state.programId !== undefined) selectedProgramId = state.programId;
       if (state.paymentMethodId !== undefined) selectedPaymentMethodId = state.paymentMethodId;
@@ -421,6 +423,46 @@ function updateUrlAmount(amount) {
   }
 }
 
+/**
+ * Configure ranges, steps and visibility for the single slider based on selected option.
+ * @param {string} option - none, cashback, payback, milesMore
+ */
+function configureSlider(option) {
+  if (option === 'none') {
+    bonusSliderRow.classList.add('hidden');
+  } else {
+    bonusSliderRow.classList.remove('hidden');
+    if (option === 'cashback') {
+      bonusSlider.min = '0';
+      bonusSlider.max = '10';
+      bonusSlider.step = '0.05';
+      bonusSliderInput.min = '0';
+      bonusSliderInput.max = '10';
+      bonusSliderInput.step = '0.05';
+      bonusSliderTitle.textContent = 'Zusatz-Cashback';
+      bonusSliderSuffix.textContent = '%';
+    } else if (option === 'payback') {
+      bonusSlider.min = '1';
+      bonusSlider.max = '50';
+      bonusSlider.step = '1';
+      bonusSliderInput.min = '1';
+      bonusSliderInput.max = '50';
+      bonusSliderInput.step = '1';
+      bonusSliderTitle.textContent = 'Payback Coupon-Faktor';
+      bonusSliderSuffix.textContent = 'x';
+    } else if (option === 'milesMore') {
+      bonusSlider.min = '1';
+      bonusSlider.max = '50';
+      bonusSlider.step = '1';
+      bonusSliderInput.min = '1';
+      bonusSliderInput.max = '50';
+      bonusSliderInput.step = '1';
+      bonusSliderTitle.textContent = 'Miles & More Coupon-Faktor';
+      bonusSliderSuffix.textContent = 'x';
+    }
+  }
+}
+
 function parseUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
   // Support ?amount=, ?a=, or ?p= (from 404 redirect)
@@ -470,45 +512,60 @@ function parseUrlParams() {
 // Input changes trigger immediate recalculation
 spendAmountInput.addEventListener('input', updateUI);
 
-// Sync Cashback Slider and Input
-cashbackPercentSlider.addEventListener('input', () => {
-  cashbackPercentInput.value = cashbackPercentSlider.value;
+// Sync Bonus Slider and Input
+bonusSlider.addEventListener('input', () => {
+  bonusSliderInput.value = bonusSlider.value;
   updateUI();
 });
 
-cashbackPercentInput.addEventListener('input', () => {
-  let val = parseFloat(cashbackPercentInput.value);
+bonusSliderInput.addEventListener('input', () => {
+  const activeBtn = programSelector.querySelector('.coupon-btn.active');
+  const activeProgram = activeBtn ? activeBtn.dataset.program : 'none';
+  
+  let val = parseFloat(bonusSliderInput.value);
   if (isNaN(val)) val = 0;
-  if (val < 0) val = 0;
-  if (val > 10) val = 10;
-  cashbackPercentSlider.value = val;
+  
+  if (activeProgram === 'cashback') {
+    if (val < 0) val = 0;
+    if (val > 10) val = 10;
+  } else {
+    val = Math.round(val);
+    if (val < 1) val = 1;
+    if (val > 50) val = 50;
+  }
+  
+  bonusSlider.value = val;
   updateUI();
 });
 
-// Coupon Program selection click
-couponProgramSelector.addEventListener('click', (e) => {
+// Program Selector Click handler (Kein, Cashback, Payback, Miles & More)
+programSelector.addEventListener('click', (e) => {
   const btn = e.target.closest('.coupon-btn');
   if (!btn) return;
-  couponProgramSelector.querySelectorAll('.coupon-btn').forEach(b => b.classList.remove('active'));
+  programSelector.querySelectorAll('.coupon-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   
-  // Auto-select program in the grid
   const program = btn.dataset.program;
-  selectProgram(program);
-});
-
-// Sync Coupon Multiplier Slider and Input
-couponMultiplierSlider.addEventListener('input', () => {
-  couponMultiplierInput.value = couponMultiplierSlider.value;
-  updateUI();
-});
-
-couponMultiplierInput.addEventListener('input', () => {
-  let val = parseInt(couponMultiplierInput.value);
-  if (isNaN(val)) val = 1;
-  if (val < 1) val = 1;
-  if (val > 50) val = 50;
-  couponMultiplierSlider.value = val;
+  
+  // Configure range constraints
+  configureSlider(program);
+  
+  // Set default starting values on swap
+  if (program === 'cashback') {
+    bonusSlider.value = '0';
+    bonusSliderInput.value = '0';
+  } else {
+    bonusSlider.value = '1';
+    bonusSliderInput.value = '1';
+  }
+  
+  // Auto-select program in the grid (None, Payback, Miles & More)
+  if (program === 'payback' || program === 'milesMore') {
+    selectProgram(program);
+  } else {
+    selectProgram('none');
+  }
+  
   updateUI();
 });
 
