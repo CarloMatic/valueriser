@@ -220,6 +220,9 @@ function updateUI() {
 
   // Persist calculator state
   saveCalculatorState();
+
+  // Sync the URL pathname with the new spend amount
+  updateUrlAmount(spendAmount);
 }
 
 /**
@@ -364,21 +367,97 @@ function loadCalculatorState() {
   }
 }
 
+/**
+ * Helper to determine the app's base pathname, handling subdirectory hosting (e.g. GitHub Pages)
+ * and custom domain hosting seamlessly.
+ * @returns {string} The base path ending with a slash.
+ */
+function getAppBasePath() {
+  const pathname = window.location.pathname;
+  const segments = pathname.split('/');
+  
+  // Pop 'index.html' or 'index.htm' if present at the end
+  if (segments.length > 1) {
+    const last = segments[segments.length - 1];
+    if (last === 'index.html' || last === 'index.htm') {
+      segments.pop();
+    }
+  }
+  
+  // Pop the numeric amount if it is present at the end
+  if (segments.length > 1) {
+    const last = segments[segments.length - 1];
+    if (last && !isNaN(parseFloat(last)) && isFinite(last)) {
+      segments.pop();
+    }
+  }
+  
+  let basePath = segments.join('/');
+  if (!basePath.endsWith('/')) {
+    basePath += '/';
+  }
+  return basePath;
+}
+
+/**
+ * Updates the URL path dynamically with the spend amount, preserving subdirectories.
+ * @param {number|string} amount - The spend amount.
+ */
+function updateUrlAmount(amount) {
+  const parsedAmount = parseFloat(amount);
+  const basePath = getAppBasePath();
+  
+  let newPath = basePath;
+  if (!isNaN(parsedAmount) && parsedAmount > 0) {
+    newPath += parsedAmount;
+  }
+  
+  if (window.location.pathname !== newPath) {
+    window.history.replaceState(null, '', newPath + window.location.search + window.location.hash);
+  }
+}
+
 function parseUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
-  let amount = urlParams.get('amount') || urlParams.get('a');
+  // Support ?amount=, ?a=, or ?p= (from 404 redirect)
+  let amount = urlParams.get('amount') || urlParams.get('a') || urlParams.get('p');
   
   if (!amount) {
     const segments = window.location.pathname.split('/');
-    const lastSegment = segments[segments.length - 1];
-    if (lastSegment && !isNaN(parseFloat(lastSegment))) {
-      amount = lastSegment;
+    // Filter out empty segments (e.g. trailing slash) and check the last non-empty segment
+    const cleanSegments = segments.filter(seg => seg.length > 0 && seg !== 'index.html' && seg !== 'index.htm');
+    if (cleanSegments.length > 0) {
+      const lastSegment = cleanSegments[cleanSegments.length - 1];
+      if (lastSegment && !isNaN(parseFloat(lastSegment)) && isFinite(lastSegment)) {
+        amount = lastSegment;
+      }
+    }
+  }
+
+  // Fallback to hash (e.g. #1000 or #/1000)
+  if (!amount && window.location.hash) {
+    const hashVal = window.location.hash.replace(/^#\/?/, '');
+    if (hashVal && !isNaN(parseFloat(hashVal)) && isFinite(hashVal)) {
+      amount = hashVal;
     }
   }
   
   const parsedAmount = parseFloat(amount);
   if (!isNaN(parsedAmount) && parsedAmount > 0) {
     spendAmountInput.value = parsedAmount;
+    
+    // Clean up the URL to present a beautiful, clean relative path (e.g. /1000 or /valueriser/1000)
+    const basePath = getAppBasePath();
+    const cleanPath = basePath + parsedAmount;
+    
+    // Clean up temporary query parameters to make URL pristine
+    urlParams.delete('p');
+    urlParams.delete('amount');
+    urlParams.delete('a');
+    const searchString = urlParams.toString();
+    const newSearch = searchString ? '?' + searchString : '';
+    
+    window.history.replaceState(null, '', cleanPath + newSearch + window.location.hash);
   }
 }
 

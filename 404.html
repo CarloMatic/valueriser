@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valueriser - Weiterleitung...</title>
+  <script type="text/javascript">
+    // Single Page Apps redirect for GitHub Pages & custom domains
+    var l = window.location;
+    var hostname = l.hostname;
+    var pathname = l.pathname;
+
+    // Is this hosted on GitHub Pages (username.github.io)?
+    var isGithubPages = hostname.indexOf('.github.io') !== -1;
+
+    var repoName = '';
+    if (isGithubPages) {
+      var segments = pathname.split('/');
+      // The first segment after the host is the repository name (e.g. /valueriser)
+      if (segments.length > 1 && segments[1]) {
+        repoName = '/' + segments[1];
+      }
+    }
+
+    // Extract the part of the path after the repo name
+    var subPath = repoName ? pathname.slice(repoName.length) : pathname;
+
+    // Remove leading and trailing slashes from the subPath to find the parameter
+    var cleanSubPath = subPath.replace(/^\/|\/$/g, '');
+
+    // Redirect to the base url of the repository with the subPath as a query parameter
+    var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + repoName + '/?p=' + encodeURIComponent(cleanSubPath) + l.search + l.hash;
+
+    l.replace(redirectUrl);
+  </script>
+</head>
+<body>
+  <p>Wird geladen...</p>
+</body>
+</html>
