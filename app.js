@@ -178,21 +178,25 @@ function updateUI() {
     let comboText = '';
     const bestP = results.bestCombo.program;
     const bestPM = results.bestCombo.paymentMethod;
+    const hasExtra = results.extraCashbackValue > 0;
 
     if (bestP && bestPM) {
-      comboText = `Nutze <span class="recommendation-highlight">${bestP.name}</span> zusammen mit <span class="recommendation-highlight">${bestPM.name}</span>`;
-    } else if (bestP) {
-      comboText = `Nutze <span class="recommendation-highlight">${bestP.name}</span>`;
-    } else if (bestPM) {
-      comboText = `Nutze <span class="recommendation-highlight">${bestPM.name}</span>`;
-    }
-
-    if (results.extraCashbackValue > 0) {
-      if (comboText) {
-        comboText += ` und das <span class="recommendation-highlight">Zusatz-Cashback</span>`;
-      } else {
-        comboText = `Nutze das <span class="recommendation-highlight">Zusatz-Cashback</span>`;
+      comboText = `Kaufe über einen <span class="recommendation-highlight">${bestP.name}</span> Link und zahle mit <span class="recommendation-highlight">${bestPM.name}</span>`;
+      if (hasExtra) {
+        comboText = `Kaufe über einen <span class="recommendation-highlight">${bestP.name}</span> Link (inkl. <span class="recommendation-highlight">Zusatz-Cashback</span>) und zahle mit <span class="recommendation-highlight">${bestPM.name}</span>`;
       }
+    } else if (bestP) {
+      comboText = `Kaufe über einen <span class="recommendation-highlight">${bestP.name}</span> Link`;
+      if (hasExtra) {
+        comboText += ` (inkl. <span class="recommendation-highlight">Zusatz-Cashback</span>)`;
+      }
+    } else if (bestPM) {
+      comboText = `Zahle mit <span class="recommendation-highlight">${bestPM.name}</span>`;
+      if (hasExtra) {
+        comboText += ` und nutze das <span class="recommendation-highlight">Zusatz-Cashback</span>`;
+      }
+    } else if (hasExtra) {
+      comboText = `Nutze das <span class="recommendation-highlight">Zusatz-Cashback</span>`;
     }
 
     if (comboText) {
