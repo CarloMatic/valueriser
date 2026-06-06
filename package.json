@@ -1,0 +1,11 @@
+{
+  "name": "valueriser",
+  "version": "1.0.0",
+  "description": "Valueriser - Rewards & Cashback Calculator (Mobile)",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "npx -y http-server -p 8080"
+  },
+  "dependencies": {}
+}

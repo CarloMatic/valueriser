@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Finde auf einen Blick heraus, wie du deine Rewards (Cashback, Meilen und Payback-Punkte) für jeden Einkauf maximieren kannst. Mobil optimiert.">
+  <meta name="theme-color" content="#07070a">
+  <title>Valueriser - Cashback & Meilen Rechner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="brand-title" id="app-title">Valueriser</div>
+      <div class="nav-toggle" role="tablist">
+        <button class="nav-btn active" id="tab-calc" role="tab" aria-selected="true" aria-controls="panel-calc">Rechner</button>
+        <button class="nav-btn" id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Profil</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Calculator View Panel -->
+      <section id="panel-calc" class="view-panel active" role="tabpanel" aria-labelledby="tab-calc">
+        <!-- Input Card -->
+        <div class="input-card">
+          <div class="input-group">
+            <label for="spend-amount" class="input-label">Einkaufsbetrag</label>
+            <div class="amount-wrapper">
+              <span class="amount-symbol">€</span>
+              <input type="number" id="spend-amount" class="amount-input" placeholder="0" min="0" step="0.01" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="bonus-options">
+            <!-- Zusatz-Cashback % Slider with Manual Override -->
+            <div class="bonus-row">
+              <div class="bonus-header">
+                <span class="bonus-title">Zusatz-Cashback</span>
+                <div class="slider-input-wrapper">
+                  <input type="number" id="cashback-percent-input" class="manual-input" min="0" max="10" step="0.05" value="0">
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <input type="range" id="cashback-percent" class="slider" min="0" max="10" step="0.05" value="0">
+            </div>
+
+            <!-- Coupon Program Selection -->
+            <div class="bonus-row">
+              <div class="bonus-header">
+                <span class="bonus-title">Loyaltyprogramm</span>
+              </div>
+              <div class="coupon-program-selector" id="coupon-program-selector" role="radiogroup" aria-label="Coupon Programm">
+                <button type="button" class="coupon-btn active" data-program="none" id="cp-none">Kein</button>
+                <button type="button" class="coupon-btn" data-program="payback" id="cp-payback">Payback</button>
+                <button type="button" class="coupon-btn" data-program="milesMore" id="cp-miles">Miles & More</button>
+              </div>
+            </div>
+
+            <!-- Coupon Multiplier Slider with Manual Override -->
+            <div class="bonus-row hidden" id="coupon-multiplier-row">
+              <div class="bonus-header">
+                <span class="bonus-title" id="coupon-multiplier-title">Coupon-Faktor</span>
+                <div class="slider-input-wrapper">
+                  <input type="number" id="coupon-multiplier-input" class="manual-input" min="1" max="50" step="1" value="1">
+                  <span class="input-suffix">x</span>
+                </div>
+              </div>
+              <input type="range" id="coupon-multiplier" class="slider" min="1" max="50" step="1" value="1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Combo Recommendation Banner -->
+        <div class="recommendation-banner hidden" id="recommendation-banner">
+          <span class="recommendation-label">Beste Kombination</span>
+          <span class="recommendation-text" id="recommendation-text">Gib einen Betrag ein, um Empfehlungen zu erhalten.</span>
+        </div>
+
+        <!-- Shopping Program Cards -->
+        <div>
+          <h2 class="section-title">1. Einkaufs-Programm wählen</h2>
+          <div class="card-grid" id="program-grid" role="radiogroup" aria-label="Einkaufs-Programm">
+            <!-- Cards will be dynamically rendered or updated by app.js -->
+            <div class="selectable-card selected" data-id="none" id="prog-card-none" role="radio" aria-checked="true">
+              <div class="card-details">
+                <span class="card-name">Kein Programm</span>
+                <span class="card-subtitle">Direktkauf ohne Partner-Punkte</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value">0,00 €</span>
+              </div>
+            </div>
+
+            <div class="selectable-card" data-id="payback" id="prog-card-payback" role="radio" aria-checked="false">
+              <div class="card-details">
+                <span class="card-name">Payback</span>
+                <span class="card-subtitle" id="pb-desc">1 Punkt pro 2 €</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value payback" id="val-payback">0,00 €</span>
+                <span class="card-value-raw" id="raw-payback">0 Punkte</span>
+              </div>
+            </div>
+
+            <div class="selectable-card" data-id="milesMore" id="prog-card-miles" role="radio" aria-checked="false">
+              <div class="card-details">
+                <span class="card-name">Miles & More</span>
+                <span class="card-subtitle" id="mm-desc">1 Meile pro 2 €</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value miles" id="val-miles">0,00 €</span>
+                <span class="card-value-raw" id="raw-miles">0 Meilen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Cards -->
+        <div>
+          <h2 class="section-title">2. Zahlungsmittel wählen</h2>
+          <div class="card-grid" id="payment-grid" role="radiogroup" aria-label="Zahlungsmittel">
+            <div class="selectable-card selected" data-id="none" id="pay-card-none" role="radio" aria-checked="true">
+              <div class="card-details">
+                <span class="card-name">Zahlungsmittel ohne Vorteile</span>
+                <span class="card-subtitle">Zahlung ohne zusätzliche Rewards</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value">0,00 €</span>
+              </div>
+            </div>
+
+            <div class="selectable-card" data-id="milesMoreCard" id="pay-card-miles" role="radio" aria-checked="false">
+              <div class="card-details">
+                <span class="card-name" id="label-pay-miles">Miles & More Card</span>
+                <span class="card-subtitle" id="desc-pay-miles">1 Meile pro 2 €</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value primary" id="val-pay-miles">0,00 €</span>
+                <span class="card-value-raw" id="raw-pay-miles">0 Meilen</span>
+              </div>
+            </div>
+
+            <div class="selectable-card" data-id="amex" id="pay-card-amex" role="radio" aria-checked="false">
+              <div class="card-details">
+                <span class="card-name" id="label-pay-amex">Amex</span>
+                <span class="card-subtitle" id="desc-pay-amex">1 Punkt pro 1 €</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value primary" id="val-pay-amex">0,00 €</span>
+                <span class="card-value-raw" id="raw-pay-amex">0 Punkte</span>
+              </div>
+            </div>
+
+            <div class="selectable-card" data-id="revolut" id="pay-card-revolut" role="radio" aria-checked="false">
+              <div class="card-details">
+                <span class="card-name" id="label-pay-revolut">Revolut</span>
+                <span class="card-subtitle" id="desc-pay-revolut">1 Punkt pro 1 €</span>
+              </div>
+              <div class="card-right">
+                <span class="card-value primary" id="val-pay-revolut">0,00 €</span>
+                <span class="card-value-raw" id="raw-pay-revolut">0 Punkte</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile / Settings View Panel (Hidden by default) -->
+      <section id="panel-settings" class="view-panel" role="tabpanel" aria-labelledby="tab-settings">
+        <!-- Programs Settings Group -->
+        <div class="settings-group">
+          <h2 class="settings-group-title">Loyaltyprogramme & Zahlungsmittel</h2>
+          
+          <!-- Payback Settings -->
+          <div class="setting-item">
+            <span class="setting-label">
+              <span>Payback Sammelrate</span>
+              <span class="text-muted" id="lbl-pb-ratio-val">1 Pkt / 2 €</span>
+            </span>
+            <div class="setting-inputs-row">
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-pb-points" class="setting-input" value="1" min="0.1" step="any">
+                <span class="setting-unit">Pkt</span>
+              </div>
+              <span style="align-self: center; color: var(--text-muted);">pro</span>
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-pb-per-euro" class="setting-input" value="2" min="1" step="1">
+                <span class="setting-unit">€</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label for="set-pb-val" class="setting-label">Payback Punkt-Wert</label>
+            <div class="setting-input-wrapper">
+              <input type="number" id="set-pb-val" class="setting-input" value="0.01" min="0.001" step="0.001">
+              <span class="setting-unit">€</span>
+            </div>
+          </div>
+
+          <!-- Miles & More Settings -->
+          <div class="setting-item">
+            <span class="setting-label">
+              <span>Miles & More Sammelrate (gilt auch für M&M Card)</span>
+              <span class="text-muted" id="lbl-mm-ratio-val">1 Meile / 2 €</span>
+            </span>
+            <div class="setting-inputs-row">
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-mm-miles" class="setting-input" value="1" min="0.1" step="any">
+                <span class="setting-unit">Meile</span>
+              </div>
+              <span style="align-self: center; color: var(--text-muted);">pro</span>
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-mm-per-euro" class="setting-input" value="2" min="1" step="1">
+                <span class="setting-unit">€</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label for="set-mm-val" class="setting-label">Miles & More Meilen-Wert</label>
+            <div class="setting-input-wrapper">
+              <input type="number" id="set-mm-val" class="setting-input" value="0.01" min="0.001" step="0.001">
+              <span class="setting-unit">€</span>
+            </div>
+          </div>
+
+          <!-- Amex Settings -->
+          <div class="setting-item">
+            <span class="setting-label">
+              <span>Amex Sammelrate</span>
+              <span class="text-muted" id="lbl-amex-ratio-val">1 MR / 1 €</span>
+            </span>
+            <div class="setting-inputs-row">
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-amex-points" class="setting-input" value="1" min="0.1" step="any">
+                <span class="setting-unit">MR</span>
+              </div>
+              <span style="align-self: center; color: var(--text-muted);">pro</span>
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-amex-per-euro" class="setting-input" value="1" min="1" step="1">
+                <span class="setting-unit">€</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label for="set-amex-val" class="setting-label">Amex Membership Reward-Wert</label>
+            <div class="setting-input-wrapper">
+              <input type="number" id="set-amex-val" class="setting-input" value="0.04" min="0.001" step="0.001">
+              <span class="setting-unit">€</span>
+            </div>
+          </div>
+
+          <!-- Revolut Settings -->
+          <div class="setting-item">
+            <span class="setting-label">
+              <span>Revolut Sammelrate</span>
+              <span class="text-muted" id="lbl-revolut-ratio-val">1 RevP / 1 €</span>
+            </span>
+            <div class="setting-inputs-row">
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-revolut-points" class="setting-input" value="1" min="0.1" step="any">
+                <span class="setting-unit">RevP</span>
+              </div>
+              <span style="align-self: center; color: var(--text-muted);">pro</span>
+              <div class="setting-input-wrapper">
+                <input type="number" id="set-revolut-per-euro" class="setting-input" value="1" min="1" step="1">
+                <span class="setting-unit">€</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label for="set-revolut-val" class="setting-label">RevPoints-Wert</label>
+            <div class="setting-input-wrapper">
+              <input type="number" id="set-revolut-val" class="setting-input" value="0.02" min="0.001" step="0.001">
+              <span class="setting-unit">€</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="btn-reset-settings" class="reset-btn">Standardwerte wiederherstellen</button>
+      </section>
+    </main>
+
+    <!-- Bottom Sticky Action Bar -->
+    <div class="bottom-bar" id="total-bar">
+      <div class="total-details">
+        <span class="total-label">Gesamtwert</span>
+        <span class="total-value" id="total-val">0,00 €</span>
+        <span class="total-combo-text" id="total-combo-desc">Keine Auswahl</span>
+      </div>
+      <button class="action-btn" id="btn-clear-selection">Auswahl leeren</button>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
