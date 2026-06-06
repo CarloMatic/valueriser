@@ -282,11 +282,11 @@ header {
   pointer-events: none;
 }
 
-/* Coupon Select buttons and program selector */
 .coupon-program-selector {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
+  width: 100%;
 }
 
 .coupon-selector {
@@ -300,12 +300,15 @@ header {
   border: 1px solid var(--card-border);
   color: var(--text-secondary);
   font-family: var(--font-family);
-  padding: 8px 0;
+  padding: 8px 2px;
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-smooth);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .coupon-btn:hover {
